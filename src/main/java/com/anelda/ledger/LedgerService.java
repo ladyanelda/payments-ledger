@@ -19,6 +19,11 @@ public class LedgerService {
 
     @Transactional
     public LedgerTransaction post(String description, List<Line> lines) {
+        return post(description, null, lines);
+    }
+
+    @Transactional
+    public LedgerTransaction post(String description, String sourceReference, List<Line> lines) {
         if (lines.size() < 2) {
             throw new IllegalArgumentException("A transaction needs at least two entries");
         }
@@ -34,12 +39,12 @@ public class LedgerService {
         if (debits != credits) {
             throw new IllegalArgumentException("Unbalanced: debits " + debits + ", credits " + credits);
         }
-        LedgerTransaction tx = new LedgerTransaction(description);
+        LedgerTransaction tx = new LedgerTransaction(description, sourceReference);
         for (Line line : lines) {
             Account account = accounts.findById(line.accountId())
                 .orElseThrow(() -> new IllegalArgumentException("No account " + line.accountId()));
             tx.addEntry(account, line.direction(), line.amount());
         }
-        return transactions.save(tx);
+        return transactions.saveAndFlush(tx);
     }
 }

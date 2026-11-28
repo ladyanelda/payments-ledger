@@ -19,13 +19,21 @@ public class LedgerTransaction {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "source_reference", unique = true, columnDefinition = "text")
+    private String sourceReference;
+
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
     private List<Entry> entries = new ArrayList<>();
 
     protected LedgerTransaction() {}
 
     public LedgerTransaction(String description) {
+        this(description, null);
+    }
+
+    public LedgerTransaction(String description, String sourceReference) {
         this.description = description;
+        this.sourceReference = sourceReference;
         this.createdAt = Instant.now();
     }
 
@@ -36,5 +44,6 @@ public class LedgerTransaction {
     public Long getId() { return id; }
     public String getDescription() { return description; }
     public Instant getCreatedAt() { return createdAt; }
+    public String getSourceReference() { return sourceReference; }
     public List<Entry> getEntries() { return entries; }
 }
